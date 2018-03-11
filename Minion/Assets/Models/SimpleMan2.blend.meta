@@ -40,6 +40,8 @@ ModelImporter:
     4300000: Cube_002
     7400000: Default Take
     7400002: Armature_000Action
+    7400004: Idle
+    7400006: Run
     9500000: //RootNode
     13700000: Cube_002
   materials:
