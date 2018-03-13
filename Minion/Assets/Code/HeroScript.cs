@@ -9,8 +9,11 @@ public class HeroScript : MonoBehaviour {
 	public Camera camera;
 
 	private Vector3 targetPos;
+	private Coroutine moveCoroutine;
 	// Use this for initialization
 	void Start () {
+		Application.targetFrameRate = 60;
+
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
 
 		targetPos = transform.position;
@@ -35,7 +38,8 @@ public class HeroScript : MonoBehaviour {
 				Transform objectHit = hit.transform;
 
 				targetPos = new Vector3 (hit.point.x, transform.position.y, hit.point.z);
-				StartCoroutine (Move ());
+				if (moveCoroutine != null) StopCoroutine (moveCoroutine);
+				moveCoroutine = StartCoroutine (Move ());
 				// Do something with the object that was hit by the raycast.
 			}
 		}
@@ -50,7 +54,7 @@ public class HeroScript : MonoBehaviour {
 		var dirVector = targetPos-startPos;
 		transform.localEulerAngles = new Vector3 (0,Mathf.Atan2(dirVector.x,dirVector.z)*Mathf.Rad2Deg-45+180,0);
 		while (true) {
-			t += Time.deltaTime;
+			t += 4*(1f/dirVector.magnitude)*Time.deltaTime;
 			transform.position = Vector3.Lerp (startPos, targetPos, t);
 			if (t>1) {
 				break;
