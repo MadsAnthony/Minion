@@ -27,7 +27,7 @@ public class HeroScript : MonoBehaviour {
 		}
 
 		//Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
-		if (Input.GetMouseButtonDown(0)) {
+		if (Input.GetMouseButton(0)) {
 			//transform.position += new Vector3 (1,0,1)*Time.deltaTime*-3;
 
 
