@@ -1,49 +1,63 @@
 fileFormatVersion: 2
-guid: 499cd72ec20d1f84abb63263e38e5d95
-timeCreated: 1519926673
+guid: 4affb9bdbdc008744a990de40af41c34
+timeCreated: 1521140009
 licenseType: Free
 ModelImporter:
   serializedVersion: 21
   fileIDToRecycleName:
-    100000: Armature_000
-    100002: Chest
-    100004: Cube_002
-    100006: Foot_L
-    100008: Foot_R_001
-    100010: Head
-    100012: LowerArm_L
-    100014: LowerArm_R_001
-    100016: LowerLeg_L
-    100018: LowerLeg_R_001
-    100020: //RootNode
-    100022: Stomach
-    100024: UpperArm_L
-    100026: UpperArm_R
-    100028: UpperLeg_L
-    100030: UpperLeg_R
-    400000: Armature_000
-    400002: Chest
-    400004: Cube_002
-    400006: Foot_L
-    400008: Foot_R_001
-    400010: Head
-    400012: LowerArm_L
-    400014: LowerArm_R_001
-    400016: LowerLeg_L
-    400018: LowerLeg_R_001
-    400020: //RootNode
-    400022: Stomach
-    400024: UpperArm_L
-    400026: UpperArm_R
-    400028: UpperLeg_L
-    400030: UpperLeg_R
-    4300000: Cube_002
-    7400000: Default Take
-    7400002: Armature_000Action
-    7400004: Idle
-    7400006: Run
+    100000: Armature.000
+    100002: Camera
+    100004: Chest
+    100006: Cube.002
+    100008: Foot.L
+    100010: Foot.L_end
+    100012: Foot.R.001
+    100014: Foot.R.001_end
+    100016: Head
+    100018: Head_end
+    100020: Lamp
+    100022: LowerArm.L
+    100024: LowerArm.L_end
+    100026: LowerArm.R.001
+    100028: LowerArm.R.001_end
+    100030: LowerLeg.L
+    100032: LowerLeg.R.001
+    100034: //RootNode
+    100036: Stomach
+    100038: UpperArm.L
+    100040: UpperArm.R
+    100042: UpperLeg.L
+    100044: UpperLeg.R
+    400000: Armature.000
+    400002: Camera
+    400004: Chest
+    400006: Cube.002
+    400008: Foot.L
+    400010: Foot.L_end
+    400012: Foot.R.001
+    400014: Foot.R.001_end
+    400016: Head
+    400018: Head_end
+    400020: Lamp
+    400022: LowerArm.L
+    400024: LowerArm.L_end
+    400026: LowerArm.R.001
+    400028: LowerArm.R.001_end
+    400030: LowerLeg.L
+    400032: LowerLeg.R.001
+    400034: //RootNode
+    400036: Stomach
+    400038: UpperArm.L
+    400040: UpperArm.R
+    400042: UpperLeg.L
+    400044: UpperLeg.R
+    2000000: Camera
+    4300000: Cube.002
+    7400000: Armature.000|Idle
+    7400002: Armature.000|Run
     9500000: //RootNode
-    13700000: Cube_002
+    10800000: Lamp
+    13700000: Cube.002
   materials:
     importMaterials: 1
     materialName: 0
