@@ -5,18 +5,37 @@ using UnityEngine.SceneManagement;
 
 public class HeroScript : MonoBehaviour {
 
+	public GameObject Tile;
+	public GameObject RootTileObject;
 	public Animator Animator;
-	public Camera camera;
+	public GameObject Cursor;
+
+	public Camera Camera;
 
 	private Vector3 targetPos;
 	private Coroutine moveCoroutine;
 	// Use this for initialization
 	void Start () {
+		SetupTiles ();
+
 		Application.targetFrameRate = 60;
 
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
 
 		targetPos = transform.position;
+	}
+
+	void SetupTiles() {
+		Vector3 tileOffset = new Vector3 (-4,0,-4);
+		for (int x = 0; x<5; x++) {
+			for (int z = 0; z<5; z++) {
+				var tile = GameObject.Instantiate (Tile);
+				tile.transform.parent = RootTileObject.transform;
+				tile.transform.localEulerAngles = new Vector3 (0,0,0);
+				tile.transform.localPosition = tileOffset + new Vector3 (x*2,0.5f,z*2);
+			}
+		}
+
 	}
 
 	// Update is called once per frame
@@ -32,12 +51,19 @@ public class HeroScript : MonoBehaviour {
 
 
 			RaycastHit hit;
-			Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+			Ray ray = Camera.ScreenPointToRay(Input.mousePosition);
 
 			if (Physics.Raycast(ray, out hit)) {
 				Transform objectHit = hit.transform;
 
 				targetPos = new Vector3 (hit.point.x, transform.position.y, hit.point.z);
+
+				var targetPosLocal = RootTileObject.transform.InverseTransformPoint (targetPos);
+				targetPosLocal = new Vector3 (Mathf.Round(targetPosLocal.x/2)*2, targetPosLocal.y, Mathf.Round(targetPosLocal.z/2)*2);
+				Cursor.transform.localPosition = targetPosLocal;
+
+				targetPos = RootTileObject.transform.TransformPoint (targetPosLocal);
+
 				if (moveCoroutine != null) StopCoroutine (moveCoroutine);
 				moveCoroutine = StartCoroutine (Move ());
 				// Do something with the object that was hit by the raycast.
