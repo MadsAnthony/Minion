@@ -9,11 +9,13 @@ public class HeroScript : MonoBehaviour {
 	public GameObject RootTileObject;
 	public Animator Animator;
 	public GameObject Cursor;
+	public GameObject Picture;
 
 	public Camera Camera;
 
 	private Vector3 targetPos;
 	private Coroutine moveCoroutine;
+	private Coroutine rotateCoroutine;
 	// Use this for initialization
 	void Start () {
 		SetupTiles ();
@@ -23,6 +25,7 @@ public class HeroScript : MonoBehaviour {
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
 
 		targetPos = transform.position;
+		Picture.SetActive (false);
 	}
 
 	void SetupTiles() {
@@ -45,16 +48,21 @@ public class HeroScript : MonoBehaviour {
 			SceneManager.LoadScene (scene.name);
 		}
 
-		//Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
 		if (Input.GetMouseButton(0)) {
-			//transform.position += new Vector3 (1,0,1)*Time.deltaTime*-3;
-
-
 			RaycastHit hit;
 			Ray ray = Camera.ScreenPointToRay(Input.mousePosition);
 
 			if (Physics.Raycast(ray, out hit)) {
-				Transform objectHit = hit.transform;
+				if (Input.GetMouseButtonDown(0 )&& !isMoving && hit.collider.gameObject.name == "Hero" && !isRotating) {
+					if (rotateCoroutine != null) StopCoroutine (rotateCoroutine);
+					rotateCoroutine = StartCoroutine (Rotate ());
+					return;
+				}
+
+				// If rotating stop everyting else.
+				if (isRotating) {
+					return;
+				}
 
 				targetPos = new Vector3 (hit.point.x, transform.position.y, hit.point.z);
 
@@ -66,13 +74,46 @@ public class HeroScript : MonoBehaviour {
 
 				if (moveCoroutine != null) StopCoroutine (moveCoroutine);
 				moveCoroutine = StartCoroutine (Move ());
-				// Do something with the object that was hit by the raycast.
 			}
 		}
-		//transform.position += (targetPos-transform.position)*Time.deltaTime;
 	}
 
+	bool isRotating;
+	IEnumerator Rotate() {
+		isRotating = true;
+		Picture.SetActive (false);
+
+		var startMousePos = Input.mousePosition;
+		float t = 0;
+		int lastRotation = 0;
+		Vector3 startRotation = Vector3.zero;
+		while (true) {
+			if (Input.GetMouseButtonUp (0)) {
+				break;
+			}
+			var vector = startMousePos-Input.mousePosition;
+			int fourRotations = (int)Mathf.Round((Mathf.Atan2 (vector.x, vector.y)/Mathf.PI+1)*2);
+			var rotation = ((fourRotations/2f)-1)*Mathf.PI;
+
+			if (fourRotations != lastRotation) {
+				t = 0;
+				startRotation = transform.localEulerAngles;
+			}
+			t += Time.deltaTime*4;
+			//transform.localEulerAngles = Vector3.Lerp (startRotation, new Vector3 (0,rotation*Mathf.Rad2Deg, 0), t);
+			transform.localEulerAngles = new Vector3 (0,rotation*Mathf.Rad2Deg, 0);
+			lastRotation = fourRotations;
+			yield return null;
+		}
+		Picture.SetActive (true);
+		isRotating = false;
+	}
+
+	bool isMoving;
 	IEnumerator Move() {
+		isMoving = true;
+		Picture.SetActive (false);
+
 		float t = 0;
 		var startPos = transform.position;
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.run));
@@ -88,6 +129,7 @@ public class HeroScript : MonoBehaviour {
 			yield return null;
 		}
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
+		isMoving = false;
 	}
 
 	enum HeroAnimationState {
