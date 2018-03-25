@@ -6,8 +6,12 @@ public class GameBoard : MonoBehaviour {
 	public GameObject RootTileObject;
 	public GameObject TilePrefab;
 	public GameObject StandPrefab;
+	public GameObject GoalCameraPrefab;
+	public RenderTexture GoalCameraTexture;
 	private const int GRID_SIZE = 5;
 	public TileInfo[,] grid = new TileInfo[GRID_SIZE, GRID_SIZE];
+
+	private GameObject cameraGoal;
 
 	Vector3 tileOffset = new Vector3 (-4,0,-4);
 	void Start () {
@@ -18,6 +22,21 @@ public class GameBoard : MonoBehaviour {
 		AssignObjectToGrid (GameObject.Instantiate (StandPrefab),3,3);
 		AssignObjectToGrid (GameObject.Instantiate (StandPrefab),1,3);
 		AssignObjectToGrid (GameObject.Instantiate (StandPrefab),1,4);
+
+		cameraGoal = GameObject.Instantiate (GoalCameraPrefab);
+		AssignObjectToGrid (cameraGoal, 3, 4);
+		cameraGoal.GetComponent<CameraPivot> ().SetTargetTexture (GoalCameraTexture);
+		cameraGoal.transform.localEulerAngles = new Vector3 (0,270,0);
+		cameraGoal.transform.localPosition = new Vector3 (cameraGoal.transform.localPosition.x,0.6f,cameraGoal.transform.localPosition.z);
+		SetLayerInFront (cameraGoal.transform.localPosition, cameraGoal.transform.localEulerAngles.y);
+	}
+
+	int frameCounter = 0;
+	void Update() {
+		frameCounter++;
+		if (frameCounter > 5) {
+			cameraGoal.SetActive (false);
+		}
 	}
 
 	public void SetLayerInFront(Vector3 pos, float angle) {

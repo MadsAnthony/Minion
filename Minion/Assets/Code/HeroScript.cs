@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class HeroScript : MonoBehaviour {
-
 	public GameObject Tile;
 	public GameObject RootTileObject;
 	public Animator Animator;
