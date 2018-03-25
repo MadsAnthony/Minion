@@ -11,34 +11,25 @@ public class HeroScript : MonoBehaviour {
 	public GameObject Cursor;
 	public GameObject Picture;
 
+	public Camera HeroCamera0;
+	public Camera HeroCamera1;
+	public Camera HeroCamera2;
+
 	public Camera Camera;
+
+	public GameBoard gameBoard;
 
 	private Vector3 targetPos;
 	private Coroutine moveCoroutine;
 	private Coroutine rotateCoroutine;
 	// Use this for initialization
 	void Start () {
-		SetupTiles ();
-
 		Application.targetFrameRate = 60;
 
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
 
 		targetPos = transform.position;
 		Picture.SetActive (false);
-	}
-
-	void SetupTiles() {
-		Vector3 tileOffset = new Vector3 (-4,0,-4);
-		for (int x = 0; x<5; x++) {
-			for (int z = 0; z<5; z++) {
-				var tile = GameObject.Instantiate (Tile);
-				tile.transform.parent = RootTileObject.transform;
-				tile.transform.localEulerAngles = new Vector3 (0,0,0);
-				tile.transform.localPosition = tileOffset + new Vector3 (x*2,0.5f,z*2);
-			}
-		}
-
 	}
 
 	// Update is called once per frame
@@ -87,26 +78,72 @@ public class HeroScript : MonoBehaviour {
 		float t = 0;
 		int lastRotation = 0;
 		Vector3 startRotation = Vector3.zero;
+		Vector3 startHeroLocalPos = transform.localPosition;
+		Vector3 mouseLocalPositionOnGround = Vector3.zero;
+		Coroutine rotateCoroutine = null;
 		while (true) {
 			if (Input.GetMouseButtonUp (0)) {
 				break;
 			}
-			var vector = startMousePos-Input.mousePosition;
-			int fourRotations = (int)Mathf.Round((Mathf.Atan2 (vector.x, vector.y)/Mathf.PI+1)*2);
-			var rotation = ((fourRotations/2f)-1)*Mathf.PI;
+
+			// Get local mouse position on ground. 
+			RaycastHit hit;
+			Ray ray = Camera.ScreenPointToRay(Input.mousePosition);
+			var layerMask = LayerMask.GetMask("GroundLayer");
+			if (Physics.Raycast (ray, out hit,50,layerMask)) {
+				var mousePositionOnGround = new Vector3 (hit.point.x, transform.position.y, hit.point.z);
+				mouseLocalPositionOnGround = RootTileObject.transform.InverseTransformPoint (mousePositionOnGround);
+			}
+
+			// Calculate rotation and clamp it into four rotations (0,90,180,270).
+			var vector = startHeroLocalPos-mouseLocalPositionOnGround;
+			int fourRotations = (int)Mathf.Round (((Mathf.Atan2 (vector.x, vector.z)) / Mathf.PI + 1) * 2);
+			var rotation = ((fourRotations / 2f) - 1) * Mathf.PI;
 
 			if (fourRotations != lastRotation) {
-				t = 0;
-				startRotation = transform.localEulerAngles;
+				if (rotateCoroutine != null) StopCoroutine (rotateCoroutine);
+				rotateCoroutine = StartCoroutine (RotateTo (transform, rotation * Mathf.Rad2Deg - 90, 0.2f));
 			}
-			t += Time.deltaTime*4;
-			//transform.localEulerAngles = Vector3.Lerp (startRotation, new Vector3 (0,rotation*Mathf.Rad2Deg, 0), t);
-			transform.localEulerAngles = new Vector3 (0,rotation*Mathf.Rad2Deg, 0);
+
 			lastRotation = fourRotations;
 			yield return null;
 		}
+
+		// Update Camera
+		HeroCamera0.enabled = false;
+		HeroCamera0.enabled = true;
+		HeroCamera1.enabled = false;
+		HeroCamera1.enabled = true;
+		HeroCamera2.enabled = false;
+		HeroCamera2.enabled = true;
+
+		gameBoard.SetLayerInFront (transform.localPosition, transform.localEulerAngles.y);
 		Picture.SetActive (true);
+
 		isRotating = false;
+	}
+
+	IEnumerator RotateTo(Transform transform, float toAngle, float time) {
+		float t = 0;
+		var startAngle = transform.localEulerAngles;
+		var angleA = (startAngle.y + 360) % 360;
+		var angleB = (toAngle + 360) % 360;
+
+		var dist = angleB-angleA;
+		if (Mathf.Abs (dist)>180) {
+			dist = -Mathf.Sign (dist) * (360 - Mathf.Abs (dist));
+		}
+
+		while (true) {
+			t += 1/time*Time.deltaTime;
+
+			transform.localEulerAngles = startAngle + Mathf.Clamp01(t) * new Vector3 (0, dist, 0);
+
+			if (t >= 1) {
+				break;
+			}
+			yield return null;
+		}
 	}
 
 	bool isMoving;
@@ -119,7 +156,7 @@ public class HeroScript : MonoBehaviour {
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.run));
 
 		var dirVector = targetPos-startPos;
-		transform.localEulerAngles = new Vector3 (0,Mathf.Atan2(dirVector.x,dirVector.z)*Mathf.Rad2Deg-45+180,0);
+		transform.localEulerAngles = new Vector3 (0,Mathf.Atan2(dirVector.x,dirVector.z)*Mathf.Rad2Deg+45,0);
 		while (true) {
 			t += 4*(1f/dirVector.magnitude)*Time.deltaTime;
 			transform.position = Vector3.Lerp (startPos, targetPos, t);
