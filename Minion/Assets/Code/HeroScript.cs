@@ -14,6 +14,11 @@ public class HeroScript : MonoBehaviour {
 	public Camera HeroCamera1;
 	public Camera HeroCamera2;
 
+	public RenderTexture CameraRenderTexture;
+	public RenderTexture GoalRenderTexture;
+	public Material MatchMaterial;
+	public GameObject MatchPicture;
+
 	public Camera Camera;
 
 	public GameBoard gameBoard;
@@ -29,6 +34,7 @@ public class HeroScript : MonoBehaviour {
 
 		targetPos = transform.position;
 		Picture.SetActive (false);
+		MatchPicture.SetActive (false);
 	}
 
 	// Update is called once per frame
@@ -119,6 +125,12 @@ public class HeroScript : MonoBehaviour {
 		gameBoard.SetLayerInFront (transform.localPosition, transform.localEulerAngles.y);
 		Picture.SetActive (true);
 
+		yield return null;
+		MatchPicture.SetActive (true);
+
+		CheckPictureIsGoal ();
+
+
 		isRotating = false;
 	}
 
@@ -145,10 +157,57 @@ public class HeroScript : MonoBehaviour {
 		}
 	}
 
+	private float CheckPictureIsGoal() {
+		int width = 256;
+		int height = 256;
+		Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+		RenderTexture.active = CameraRenderTexture;
+		texture.ReadPixels(new Rect(0,0,width,height), 0, 0);
+		var currentTexturePixels = texture.GetPixels ();
+
+
+		RenderTexture.active = null;
+
+		Texture2D textureGoal = new Texture2D(width, height, TextureFormat.RGBA32, false);
+		RenderTexture.active = GoalRenderTexture;
+		textureGoal.ReadPixels(new Rect(0,0,width,height), 0, 0);
+		var goalTexturePixels = textureGoal.GetPixels ();
+
+		RenderTexture.active = null;
+
+		Color[] matchPixels = new Color[width*height];
+		int sum = 0;
+		for (int i = 0; i<width*height; i++) {
+			var pixel = currentTexturePixels[i];
+
+			matchPixels [i] = new Color (1,1,1,0f);
+			if (currentTexturePixels [i] != new Color (190/255f,190/255f,190/255f,0)) {
+				matchPixels [i] = new Color (1, 0, 0, 0.5f);
+			}
+			if (pixel == goalTexturePixels [i]) {
+				sum++;
+				if (goalTexturePixels [i] != new Color (190/255f,190/255f,190/255f,0)) {
+					matchPixels [i] = new Color (0, 1, 0, 0.5f);
+				}
+			}
+		}
+		var ratio = sum / (float)(width * height);
+
+
+
+		Texture2D textureMatch = new Texture2D(width, height, TextureFormat.RGBA32, false);
+		textureMatch.SetPixels (matchPixels);
+		MatchMaterial.mainTexture = textureMatch;
+		textureMatch.Apply ();
+
+		return ratio;
+	}
+
 	bool isMoving;
 	IEnumerator Move() {
 		isMoving = true;
 		Picture.SetActive (false);
+		MatchPicture.SetActive (false);
 
 		float t = 0;
 		var startPos = transform.position;
