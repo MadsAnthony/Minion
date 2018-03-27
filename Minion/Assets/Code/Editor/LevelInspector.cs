@@ -7,6 +7,7 @@ public class LevelInspector : Editor {
 	private RenderTexture editorRenderTexture;
 	private Vector2 windowOffset = new Vector2(20,100);
 	private Vector2 windowSize = new Vector2(500,500);
+	private Color windowBackgroundColor = new Color (1,1,1,1);
 
 	Vector2 startMousePos;
 	Vector2 mousePos;
@@ -49,6 +50,9 @@ public class LevelInspector : Editor {
 		cameraGameObject.transform.position = new Vector3 (0,0,-12);
 		cameraGameObject.hideFlags = HideFlags.HideAndDontSave;
 		var camera = cameraGameObject.AddComponent<Camera> ();
+		camera.orthographic = true;
+		camera.clearFlags = CameraClearFlags.Color;
+		camera.backgroundColor = windowBackgroundColor;
 		editorRenderTexture = Resources.Load ("EditorRenderTexture") as RenderTexture;
 		camera.targetTexture = editorRenderTexture;
 	}
