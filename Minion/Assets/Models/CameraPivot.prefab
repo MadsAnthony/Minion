@@ -280,6 +280,7 @@ MonoBehaviour:
   - {fileID: 20296366548779216}
   - {fileID: 20132630274723494}
   - {fileID: 20468526400425002}
+  ReplacementShader: {fileID: 4800000, guid: 8917670a65f2f294f9d35fc8c692db22, type: 3}
 --- !u!124 &124183183415289026
 Behaviour:
   m_ObjectHideFlags: 1
