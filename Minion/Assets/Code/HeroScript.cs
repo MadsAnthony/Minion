@@ -181,7 +181,7 @@ public class HeroScript : MonoBehaviour {
 			var pixel = currentTexturePixels[i];
 
 			matchPixels [i] = new Color (1,1,1,0f);
-			if (currentTexturePixels [i] != new Color (190/255f,190/255f,190/255f,0)) {
+			if (currentTexturePixels [i] != new Color (190/255f,190/255f,190/255f,0) && goalTexturePixels [i] == new Color (190/255f,190/255f,190/255f,0)) {
 				matchPixels [i] = new Color (1, 0, 0, 0.5f);
 			}
 			if (pixel == goalTexturePixels [i]) {
