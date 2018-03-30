@@ -12,7 +12,7 @@ public class LevelAsset : ScriptableObject {
 [Serializable]
 public class TileData {
 	public Vector3 pos;
-	public List<TileObject> tileObjects = new List<TileObject>();
+	public List<Piece> pieces = new List<Piece>();
 
 	public TileData(Vector3 pos) {
 		this.pos = pos;
@@ -20,6 +20,18 @@ public class TileData {
 }
 
 [Serializable]
-public class TileObject {
+public class Piece {
+	public PieceType pieceType;
 	
+	public Piece(PieceType pieceType) {
+		this.pieceType = pieceType;
+	}
 }
+
+// ATTENTION: Always add new entries at the end and be careful when removing entries (as enums are serialized to integers).
+public enum PieceType {
+	Tile,
+	Hero,
+	GoalPos,
+	Cube
+};
