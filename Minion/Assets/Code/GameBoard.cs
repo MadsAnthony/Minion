@@ -3,28 +3,63 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameBoard : MonoBehaviour {
+	public LevelDatabase LevelDatabase;
 	public GameObject RootTileObject;
+	public HeroScript Hero;
 	public GameObject TilePrefab;
 	public GameObject StandPrefab;
 	public GameObject GoalCameraPrefab;
 	public RenderTexture GoalCameraTexture;
 	private const int GRID_SIZE = 5;
 	public TileInfo[,] grid = new TileInfo[GRID_SIZE, GRID_SIZE];
-
+	public Dictionary<Vector3,TileInfo> gridDictionary = new Dictionary<Vector3,TileInfo>();
+	
 	private GameObject cameraGoal;
 
 	Vector3 tileOffset = new Vector3 (-4,0,-4);
+	
 	void Start () {
-		SetupTiles ();
+		var level = LevelDatabase.levels[0];
+		
+		foreach (var tile in level.tiles) {
+			var gameObjectTile = GameObject.Instantiate(Resources.Load<GameObject>("Tile"));
+			gameObjectTile.transform.parent = RootTileObject.transform;
+			gameObjectTile.transform.localEulerAngles = new Vector3 (0,0,0);
+			gameObjectTile.transform.localPosition = new Vector3 (tile.pos.x*2,0.5f,tile.pos.z*2);
+			var tileInfo = new TileInfo();
+			gridDictionary.Add(tile.pos, tileInfo);
+			foreach (var piece in tile.pieces) {
+				GameObject tilePiece = null;
+				if (piece.pieceType == PieceType.Hero) {
+					Hero.transform.parent = gameObjectTile.transform;
+					Hero.transform.localEulerAngles = new Vector3 (0,0,0);
+					Hero.transform.localPosition = new Vector3 (0,0,0);
+					
+					Hero.transform.parent = RootTileObject.transform;
+					Hero.transform.localPosition = new Vector3 (Hero.transform.localPosition.x,0.6f,Hero.transform.localPosition.z);
+					continue;
+				}
+				if (piece.pieceType == PieceType.GoalPos) {
+					tilePiece = GameObject.Instantiate (GoalCameraPrefab);
+					tilePiece.transform.parent = gameObjectTile.transform;
+					tilePiece.transform.localPosition = new Vector3 (0,0,0);
+					cameraGoal = tilePiece;
+					
+					tilePiece.transform.parent = RootTileObject.transform;
+					continue;
+				}
+				if (piece.pieceType == PieceType.Cube) {
+					tilePiece = GameObject.Instantiate(Resources.Load<GameObject>("Stand"));	
+				}
 
-
-		AssignObjectToGrid (GameObject.Instantiate (StandPrefab),2,2);
-		AssignObjectToGrid (GameObject.Instantiate (StandPrefab),3,3);
-		AssignObjectToGrid (GameObject.Instantiate (StandPrefab),1,3);
-		AssignObjectToGrid (GameObject.Instantiate (StandPrefab),1,4);
-
-		cameraGoal = GameObject.Instantiate (GoalCameraPrefab);
-		AssignObjectToGrid (cameraGoal, 3, 4);
+				if (tilePiece != null) {
+					tilePiece.transform.parent = gameObjectTile.transform;
+					tilePiece.transform.localEulerAngles = new Vector3 (0,0,0);
+					tilePiece.transform.localPosition = new Vector3 (0,0,0);
+					tileInfo.objects.Add (tilePiece);
+				}
+			}
+		}
 		cameraGoal.GetComponent<CameraPivot> ().SetTargetTexture (GoalCameraTexture);
 		cameraGoal.transform.localEulerAngles = new Vector3 (0,270,0);
 		cameraGoal.transform.localPosition = new Vector3 (cameraGoal.transform.localPosition.x,0.6f,cameraGoal.transform.localPosition.z);
@@ -55,9 +90,9 @@ public class GameBoard : MonoBehaviour {
 			dir = Direction.Left;
 		}
 
-		var gridPos = pos-tileOffset;
-		int gridPosX = Mathf.RoundToInt(gridPos.x/2);
-		int gridPosZ = Mathf.RoundToInt(gridPos.z/2);
+		//var gridPos = pos-tileOffset;
+		int gridPosX = Mathf.RoundToInt(pos.x/2);
+		int gridPosZ = Mathf.RoundToInt(pos.z/2);
 
 		var tileInfos0 = GetLocalRow (dir, gridPosX, gridPosZ, 1);
 		foreach (var tileInfo in tileInfos0) {
@@ -90,23 +125,31 @@ public class GameBoard : MonoBehaviour {
 	List<TileInfo> GetLocalRow(Direction dir, int inputX, int inputZ, int index) {
 		var resultTileInfos = new List<TileInfo> ();
 		if (dir == Direction.Up) {
-			for (int z = 0; z<GRID_SIZE; z++) {
-				resultTileInfos.Add (grid [Mathf.Clamp(inputX-index,0,GRID_SIZE-1), z]);
+			foreach (var keyValuePair in gridDictionary) {
+				if ((int)keyValuePair.Key.x == inputX-index) {
+					resultTileInfos.Add(keyValuePair.Value);
+				}
 			}
 		}
 		if (dir == Direction.Right) {
-			for (int x = 0; x<GRID_SIZE; x++) {
-				resultTileInfos.Add (grid [x, Mathf.Clamp(inputZ+index,0,GRID_SIZE-1)]);
+			foreach (var keyValuePair in gridDictionary) {
+				if ((int)keyValuePair.Key.z == inputZ+index) {
+					resultTileInfos.Add(keyValuePair.Value);
+				}
 			}
 		}
 		if (dir == Direction.Down) {
-			for (int z = 0; z<GRID_SIZE; z++) {
-				resultTileInfos.Add (grid [Mathf.Clamp(inputX+index,0,GRID_SIZE-1), z]);
+			foreach (var keyValuePair in gridDictionary) {
+				if ((int)keyValuePair.Key.x == inputX+index) {
+					resultTileInfos.Add(keyValuePair.Value);
+				}
 			}
 		}
 		if (dir == Direction.Left) {
-			for (int z = 0;z<GRID_SIZE; z++) {
-				resultTileInfos.Add (grid [z, Mathf.Clamp(inputZ-index,0,GRID_SIZE-1)]);
+			foreach (var keyValuePair in gridDictionary) {
+				if ((int)keyValuePair.Key.z == inputZ-index) {
+					resultTileInfos.Add(keyValuePair.Value);
+				}
 			}
 		}
 		return resultTileInfos;

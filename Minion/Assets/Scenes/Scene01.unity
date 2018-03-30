@@ -1063,7 +1063,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b07d1078e6ec7f749b2eeebc7c0a8c2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LevelDatabase: {fileID: 11400000, guid: 668fb42c2a8ee4f63b6c60c2cb93e14f, type: 2}
   RootTileObject: {fileID: 941264747}
+  Hero: {fileID: 1479145301}
   TilePrefab: {fileID: 1975958752374260, guid: b3bfe00b6aa3c7141816951f703e29b1, type: 2}
   StandPrefab: {fileID: 1759937719394996, guid: 091fa02cdd1be50449c1211ac82f031d,
     type: 2}
