@@ -56,7 +56,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4363188229671928}
   m_Layer: 9
-  m_Name: StandPrefab
+  m_Name: Stand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

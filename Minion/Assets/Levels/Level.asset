@@ -12,14 +12,26 @@ MonoBehaviour:
   m_Name: Level
   m_EditorClassIdentifier: 
   tiles:
-  - pos: {x: -1, y: 0, z: -3}
-    pieces: []
-  - pos: {x: -2, y: 0, z: 3}
-    pieces: []
   - pos: {x: 0, y: 0, z: 0}
+    pieces:
+    - pieceType: 3
+  - pos: {x: 1, y: 0, z: 0}
+    pieces:
+    - pieceType: 2
+  - pos: {x: 1, y: 0, z: -1}
+    pieces: []
+  - pos: {x: 0, y: 0, z: -1}
+    pieces: []
+  - pos: {x: -1, y: 0, z: 1}
+    pieces: []
+  - pos: {x: 0, y: 0, z: 1}
+    pieces: []
+  - pos: {x: 1, y: 0, z: 1}
     pieces: []
   - pos: {x: -1, y: 0, z: 0}
     pieces: []
-  - pos: {x: -1, y: 0, z: 1}
+  - pos: {x: -1, y: 0, z: -1}
     pieces:
     - pieceType: 1
+  - pos: {x: 0, y: 0, z: -4}
+    pieces: []
