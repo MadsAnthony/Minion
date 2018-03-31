@@ -19,7 +19,7 @@ public class GameBoard : MonoBehaviour {
 	Vector3 tileOffset = new Vector3 (-4,0,-4);
 	
 	void Start () {
-		var level = LevelDatabase.levels[0];
+		var level = LevelDatabase.levels[Director.Instance.LevelIndex];
 		
 		foreach (var tile in level.tiles) {
 			var gameObjectTile = GameObject.Instantiate(Resources.Load<GameObject>("Tile"));
