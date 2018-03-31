@@ -33,6 +33,22 @@ public class HeroScript : MonoBehaviour {
 		targetPos = transform.position;
 		Picture.SetActive (false);
 		MatchPicture.SetActive (false);
+		Director.GameEventManager.OnGameEvent += OnGameEvent;
+	}
+
+	void OnGameEvent(GameEvent e) {
+		switch (e.type) {
+			case GameEventType.LevelCompleted:
+				Director.TransitionManager.PlayTransition(()=> {
+				Director.Instance.LevelIndex = Mathf.Clamp(Director.Instance.LevelIndex+1,0,Director.LevelDatabase.levels.Count-1);
+					Scene scene = SceneManager.GetActiveScene ();
+					SceneManager.LoadScene(scene.name);
+				},
+				0.2f,Director.TransitionManager.FadeToBlack(),Director.TransitionManager.FadeOut());
+				break;
+			default:
+				break;
+		}
 	}
 
 	// Update is called once per frame
@@ -126,8 +142,10 @@ public class HeroScript : MonoBehaviour {
 		yield return null;
 		MatchPicture.SetActive (true);
 
-		CheckPictureIsGoal ();
-
+		var precision = CheckPictureIsGoal ();
+		if (precision>0.994f) {
+			Director.GameEventManager.Emit (GameEventType.LevelCompleted);
+		}
 
 		isRotating = false;
 	}
@@ -189,8 +207,7 @@ public class HeroScript : MonoBehaviour {
 				}
 			}
 		}
-		var ratio = sum / (float)(width * height);
-
+		var precision = sum / (float)(width * height);
 
 
 		Texture2D textureMatch = new Texture2D(width, height, TextureFormat.RGBA32, false);
@@ -198,7 +215,7 @@ public class HeroScript : MonoBehaviour {
 		MatchMaterial.mainTexture = textureMatch;
 		textureMatch.Apply ();
 
-		return ratio;
+		return precision;
 	}
 
 	bool isMoving;
