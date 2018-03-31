@@ -19,4 +19,10 @@ public class DeveloperCheats {
 	private static void GotoLevelSelectScene() {
 		SceneManager.LoadScene ("LevelSelectScene");
 	}
+
+	[CommandHandler]
+	private static void ToggleMatchPrecision() {
+		Director.Instance.ShowMatchPrecision = !Director.Instance.ShowMatchPrecision;
+	}
+
 }

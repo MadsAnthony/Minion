@@ -26,6 +26,7 @@ public class HeroScript : MonoBehaviour {
 	private Vector3 targetPos;
 	private Coroutine moveCoroutine;
 	private Coroutine rotateCoroutine;
+
 	// Use this for initialization
 	void Start () {
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
@@ -34,6 +35,10 @@ public class HeroScript : MonoBehaviour {
 		Picture.SetActive (false);
 		MatchPicture.SetActive (false);
 		Director.GameEventManager.OnGameEvent += OnGameEvent;
+	}
+
+	void OnDestroy() {
+		Director.GameEventManager.OnGameEvent -= OnGameEvent;
 	}
 
 	void OnGameEvent(GameEvent e) {
@@ -140,7 +145,7 @@ public class HeroScript : MonoBehaviour {
 		Picture.SetActive (true);
 
 		yield return null;
-		MatchPicture.SetActive (true);
+		MatchPicture.SetActive (Director.Instance.ShowMatchPrecision);
 
 		var precision = CheckPictureIsGoal ();
 		if (precision>0.994f) {

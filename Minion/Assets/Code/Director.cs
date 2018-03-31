@@ -29,6 +29,7 @@ public class Director : MonoBehaviour  {
 		set {worldIndex = value;}
 	}
 
+	public bool ShowMatchPrecision { get; set;}
 
 	private GameEventManager		gameEventManager;
 	private UIManager 		 		uiManager;
