@@ -28,8 +28,6 @@ public class HeroScript : MonoBehaviour {
 	private Coroutine rotateCoroutine;
 	// Use this for initialization
 	void Start () {
-		Application.targetFrameRate = 60;
-
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.idle));
 
 		targetPos = transform.position;
