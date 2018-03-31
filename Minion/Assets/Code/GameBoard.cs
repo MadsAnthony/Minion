@@ -21,34 +21,36 @@ public class GameBoard : MonoBehaviour {
 	void Start () {
 		var level = LevelDatabase.levels[Director.Instance.LevelIndex];
 		
-		foreach (var tile in level.tiles) {
+		foreach (var tile in level.Tiles) {
 			var gameObjectTile = GameObject.Instantiate(Resources.Load<GameObject>("Tile"));
 			gameObjectTile.transform.parent = RootTileObject.transform;
 			gameObjectTile.transform.localEulerAngles = new Vector3 (0,0,0);
-			gameObjectTile.transform.localPosition = new Vector3 (tile.pos.x*2,0.5f,tile.pos.z*2);
+			gameObjectTile.transform.localPosition = new Vector3 (tile.Pos.x*2,0.5f,tile.Pos.z*2);
 			var tileInfo = new TileInfo();
-			gridDictionary.Add(tile.pos, tileInfo);
-			foreach (var piece in tile.pieces) {
+			gridDictionary.Add(tile.Pos, tileInfo);
+			foreach (var piece in tile.Pieces) {
 				GameObject tilePiece = null;
-				if (piece.pieceType == PieceType.Hero) {
+				if (piece.PieceType == PieceType.Hero) {
 					Hero.transform.parent = gameObjectTile.transform;
 					Hero.transform.localEulerAngles = new Vector3 (0,0,0);
 					Hero.transform.localPosition = new Vector3 (0,0,0);
 					
 					Hero.transform.parent = RootTileObject.transform;
 					Hero.transform.localPosition = new Vector3 (Hero.transform.localPosition.x,0.6f,Hero.transform.localPosition.z);
+					Hero.transform.localEulerAngles = new Vector3 (0,GetAngleFromDirection(piece.Direction),0);
 					continue;
 				}
-				if (piece.pieceType == PieceType.GoalPos) {
+				if (piece.PieceType == PieceType.GoalPos) {
 					tilePiece = GameObject.Instantiate (GoalCameraPrefab);
 					tilePiece.transform.parent = gameObjectTile.transform;
 					tilePiece.transform.localPosition = new Vector3 (0,0,0);
 					cameraGoal = tilePiece;
 					
 					tilePiece.transform.parent = RootTileObject.transform;
+					tilePiece.transform.localEulerAngles = new Vector3 (0,GetAngleFromDirection(piece.Direction),0);
 					continue;
 				}
-				if (piece.pieceType == PieceType.Cube) {
+				if (piece.PieceType == PieceType.Cube) {
 					tilePiece = GameObject.Instantiate(Resources.Load<GameObject>("Stand"));	
 				}
 
@@ -61,9 +63,19 @@ public class GameBoard : MonoBehaviour {
 			}
 		}
 		cameraGoal.GetComponent<CameraPivot> ().SetTargetTexture (GoalCameraTexture);
-		cameraGoal.transform.localEulerAngles = new Vector3 (0,270,0);
+
 		cameraGoal.transform.localPosition = new Vector3 (cameraGoal.transform.localPosition.x,0.6f,cameraGoal.transform.localPosition.z);
 		SetLayerInFront (cameraGoal.transform.localPosition, cameraGoal.transform.localEulerAngles.y);
+	}
+
+	public int GetAngleFromDirection(Direction dir) {
+		switch(dir) {
+			case Direction.Up: return 0;
+			case Direction.Right: return 90;
+			case Direction.Down: return 180;
+			case Direction.Left: return 270;
+		}
+		return 0;
 	}
 
 	int frameCounter = 0;
@@ -185,6 +197,4 @@ public class GameBoard : MonoBehaviour {
 	public class TileInfo {
 		public List<GameObject> objects = new List<GameObject>();
 	}
-
-	public enum Direction { Up, Right, Down, Left}
 }

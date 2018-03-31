@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Rotorz.ReorderableList;
 
 [CustomEditor(typeof(LevelAsset))]
 public class LevelInspector : Editor {
@@ -11,17 +12,23 @@ public class LevelInspector : Editor {
 	private Color windowBackgroundColor = new Color (1,1,1,1);
 	private int windowGridSize = 100;
 
-	Vector2 startMousePos;
-	Vector2 mousePos;
-	PieceType pieceType;
-	EditorMode editorMode;
-	public override void OnInspectorGUI()
-	{
+	private Vector2 startMousePos;
+	private Vector2 mousePos;
+	private Vector3 selectPos;
+	private PieceType pieceType;
+	private EditorMode editorMode;
+	private TileData selectableTile = null;
+	public override void OnInspectorGUI() {
 		bool reconstruct = false;
 		LevelAsset myTarget = (LevelAsset)target;
 
+		var editorModeCached = editorMode;
 		string[] editorModeOptions = {"Select", "Add"};
 		editorMode = (EditorMode)EditorGUILayout.Popup ("Mode", (int)editorMode, editorModeOptions);
+
+		if (editorModeCached != editorMode) {
+			reconstruct = true;
+		}
 
 		if (editorMode == EditorMode.Add) {
 			string[] pieceOptions = Enum.GetNames (typeof(PieceType));
@@ -36,37 +43,39 @@ public class LevelInspector : Editor {
 		tmpMousePos -= windowOffset;
 		tmpMousePos -= windowSize * 0.5f;
 		var mousePosInGrid = new Vector3(Mathf.RoundToInt(tmpMousePos.x / windowGridSize), 0, -Mathf.RoundToInt(tmpMousePos.y / windowGridSize));
-		if (Event.current.type == EventType.MouseDown) {
-
+		if (Event.current.type == EventType.MouseDown && IsPositionWithinWindow(Event.current.mousePosition)) {
 			if (editorMode == EditorMode.Select) {
-				
+				selectPos = mousePosInGrid;
+				selectableTile = myTarget.Tiles.Find (x => {return x.Pos == mousePosInGrid;});
+					
+				reconstruct = true;
 			} else if (editorMode == EditorMode.Add) {
 				if (pieceType == PieceType.Tile) {
 					if (Event.current.button == 0) {
-						if (!myTarget.tiles.Exists(x => { return x.pos == mousePosInGrid; })) {
-							myTarget.tiles.Add(new TileData(mousePosInGrid));
+						if (!myTarget.Tiles.Exists(x => { return x.Pos == mousePosInGrid; })) {
+							myTarget.Tiles.Add(new TileData(mousePosInGrid));
 							reconstruct = true;
 						}
 					}
 
 					if (Event.current.button == 1) {
-						var posibleTile = myTarget.tiles.Find(x => { return x.pos == mousePosInGrid; });
+						var posibleTile = myTarget.Tiles.Find(x => { return x.Pos == mousePosInGrid; });
 						if (posibleTile != null) {
-							myTarget.tiles.Remove(posibleTile);
+							myTarget.Tiles.Remove(posibleTile);
 							reconstruct = true;
 						}
 					}
 				} else {
-					var posibleTile = myTarget.tiles.Find(x => { return x.pos == mousePosInGrid; });
+					var posibleTile = myTarget.Tiles.Find(x => { return x.Pos == mousePosInGrid; });
 					if (Event.current.button == 0) {
-						if (posibleTile != null && posibleTile.pieces.Count == 0) {
-							posibleTile.pieces.Add(new Piece(pieceType));
+						if (posibleTile != null && posibleTile.Pieces.Count == 0) {
+							posibleTile.Pieces.Add(new PieceData(pieceType));
 							reconstruct = true;
 						}
 					}
 					if (Event.current.button == 1) {
-						if (posibleTile != null && posibleTile.pieces.Count != 0){
-							posibleTile.pieces = new List<Piece>();
+						if (posibleTile != null && posibleTile.Pieces.Count != 0){
+							posibleTile.Pieces = new List<PieceData>();
 							reconstruct = true;
 						}
 					}
@@ -76,7 +85,6 @@ public class LevelInspector : Editor {
 		}
 
 		if (Event.current.button == 2) {
-			//mousePos = Event.current.mousePosition;
 			if (Event.current.type == EventType.MouseDown) {
 				mousePos = Event.current.mousePosition;
 			}
@@ -91,22 +99,31 @@ public class LevelInspector : Editor {
 			DestroyLevel ();
 			ConstructLevel();
 		}
+
+		if (editorMode == EditorMode.Select && selectableTile != null) {
+			EditorGUILayout.BeginVertical();
+			GUILayout.Space (windowOffset.y+windowSize.y);
+
+
+			ReorderableListGUI.Title("Selection");
+			ReorderableListGUI.ListField<PieceData>(selectableTile.Pieces, SelectionOfPieceDrawer);
+			EditorGUILayout.EndVertical ();
+		}
+
 		EditorUtility.SetDirty (myTarget);
 	}
 
-	private bool TilesContainsPos(Vector3 pos) {
-		LevelAsset myTarget = (LevelAsset)target;
-		foreach (var tile in myTarget.tiles) {
-			if (tile.pos == pos) {
-				return true;
-			}
-		}
-
-		return false;
+	bool IsPositionWithinWindow(Vector2 pos) {
+		return 	pos.x > windowOffset.x && pos.x < windowOffset.x+windowSize.x &&
+				pos.y > windowOffset.y && pos.y < windowOffset.y+windowSize.y;
 	}
 	
 	private void OnEnable() {
-		ConstructLevel ();
+		if (Application.isPlaying) {
+			DestroyLevel ();
+		} else {
+			ConstructLevel ();
+		}
 	}
 
 	private void OnDisable() {
@@ -124,24 +141,30 @@ public class LevelInspector : Editor {
 		cameraGameObject.transform.position = new Vector3 (0,4,-100);
 		cameraGameObject.transform.eulerAngles = new Vector3(90,0,0);
 		var camera = cameraGameObject.AddComponent<Camera> ();
-		camera.hideFlags = HideFlags.HideAndDontSave;
+		cameraGameObject.hideFlags = HideFlags.HideAndDontSave;
 		camera.orthographic = true;
 		camera.clearFlags = CameraClearFlags.Color;
 		camera.backgroundColor = windowBackgroundColor;
 		editorRenderTexture = Resources.Load ("EditorRenderTexture") as RenderTexture;
 		camera.targetTexture = editorRenderTexture;
 
-		foreach (var tile in myTarget.tiles) {
+		if (editorMode == EditorMode.Select) {
+			var editorSelect = GameObject.Instantiate (Resources.Load<GameObject> ("EditorSelect"));
+			AssignObjectToGrid (editorSelect, (int)selectPos.x, (int)selectPos.z);
+			editorSelect.transform.localPosition = new Vector3 (editorSelect.transform.localPosition.x, 2, editorSelect.transform.localPosition.z);
+		}
+
+		foreach (var tile in myTarget.Tiles) {
 			var gameObjectTile = GameObject.Instantiate(Resources.Load<GameObject>("Tile"));
-			foreach (var piece in tile.pieces) {
+			foreach (var piece in tile.Pieces) {
 				GameObject tilePiece = null;
-				if (piece.pieceType == PieceType.Hero) {
+				if (piece.PieceType == PieceType.Hero) {
 					tilePiece = GameObject.Instantiate(Resources.Load<GameObject>("Hero"));
 				}
-				if (piece.pieceType == PieceType.GoalPos) {
+				if (piece.PieceType == PieceType.GoalPos) {
 					tilePiece = GameObject.Instantiate(Resources.Load<GameObject>("GoalPos"));	
 				}
-				if (piece.pieceType == PieceType.Cube) {
+				if (piece.PieceType == PieceType.Cube) {
 					tilePiece = GameObject.Instantiate(Resources.Load<GameObject>("Stand"));	
 				}
 
@@ -151,7 +174,7 @@ public class LevelInspector : Editor {
 					tilePiece.transform.localPosition = new Vector3 (0,-0.5f,0);
 				}
 			}
-			AssignObjectToGrid(gameObjectTile,(int)tile.pos.x,(int)tile.pos.z);
+			AssignObjectToGrid(gameObjectTile,(int)tile.Pos.x,(int)tile.Pos.z);
 		}
 
 		SetHideFlagsRecursively(rootContainer);
@@ -179,4 +202,16 @@ public class LevelInspector : Editor {
 		Select,
 		Add
 	};
+
+	PieceData SelectionOfPieceDrawer(Rect rect, PieceData value) {
+		var r = new Rect (rect);
+		if (value != null) {
+			r.width = 100;
+			value.PieceType = (PieceType)EditorGUI.EnumPopup (r, value.PieceType);
+
+			r.x += 100;
+			value.Direction = (Direction)EditorGUI.EnumPopup (r, value.Direction);
+		}
+		return value;
+	}
 }

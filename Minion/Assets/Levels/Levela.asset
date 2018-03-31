@@ -11,57 +11,57 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a28521016e12154ea6db0b8b6e6588f, type: 3}
   m_Name: Level
   m_EditorClassIdentifier: 
-  tiles:
-  - pos: {x: 0, y: 0, z: 0}
-    pieces:
-    - pieceType: 3
-  - pos: {x: 1, y: 0, z: 0}
-    pieces: []
-  - pos: {x: 1, y: 0, z: -1}
-    pieces: []
-  - pos: {x: 0, y: 0, z: -1}
-    pieces: []
-  - pos: {x: -1, y: 0, z: 1}
-    pieces: []
-  - pos: {x: 0, y: 0, z: 1}
-    pieces:
-    - pieceType: 2
-  - pos: {x: 1, y: 0, z: 1}
-    pieces: []
-  - pos: {x: -1, y: 0, z: 0}
-    pieces: []
-  - pos: {x: -1, y: 0, z: -1}
-    pieces: []
-  - pos: {x: -2, y: 0, z: 0}
-    pieces: []
-  - pos: {x: -2, y: 0, z: -1}
-    pieces: []
-  - pos: {x: -2, y: 0, z: -2}
-    pieces:
-    - pieceType: 1
-  - pos: {x: -1, y: 0, z: -2}
-    pieces: []
-  - pos: {x: 0, y: 0, z: -2}
-    pieces: []
-  - pos: {x: 1, y: 0, z: -2}
-    pieces: []
-  - pos: {x: 2, y: 0, z: -2}
-    pieces: []
-  - pos: {x: 2, y: 0, z: -1}
-    pieces: []
-  - pos: {x: 2, y: 0, z: 0}
-    pieces: []
-  - pos: {x: 2, y: 0, z: 1}
-    pieces: []
-  - pos: {x: 2, y: 0, z: 2}
-    pieces: []
-  - pos: {x: 1, y: 0, z: 2}
-    pieces: []
-  - pos: {x: 0, y: 0, z: 2}
-    pieces: []
-  - pos: {x: -1, y: 0, z: 2}
-    pieces: []
-  - pos: {x: -2, y: 0, z: 1}
-    pieces: []
-  - pos: {x: -2, y: 0, z: 2}
-    pieces: []
+  Tiles:
+  - Pos: {x: -2, y: 0, z: 2}
+    Pieces: []
+  - Pos: {x: -2, y: 0, z: 1}
+    Pieces: []
+  - Pos: {x: -2, y: 0, z: -1}
+    Pieces: []
+  - Pos: {x: -2, y: 0, z: -2}
+    Pieces:
+    - PieceType: 1
+  - Pos: {x: 1, y: 0, z: -2}
+    Pieces: []
+  - Pos: {x: 2, y: 0, z: -2}
+    Pieces: []
+  - Pos: {x: 2, y: 0, z: -1}
+    Pieces: []
+  - Pos: {x: 2, y: 0, z: 0}
+    Pieces: []
+  - Pos: {x: 2, y: 0, z: 1}
+    Pieces: []
+  - Pos: {x: 2, y: 0, z: 2}
+    Pieces: []
+  - Pos: {x: 1, y: 0, z: 1}
+    Pieces: []
+  - Pos: {x: 1, y: 0, z: 0}
+    Pieces: []
+  - Pos: {x: 1, y: 0, z: -1}
+    Pieces: []
+  - Pos: {x: 0, y: 0, z: -2}
+    Pieces: []
+  - Pos: {x: -1, y: 0, z: -2}
+    Pieces: []
+  - Pos: {x: -1, y: 0, z: -1}
+    Pieces: []
+  - Pos: {x: -2, y: 0, z: 0}
+    Pieces: []
+  - Pos: {x: 0, y: 0, z: -1}
+    Pieces: []
+  - Pos: {x: -1, y: 0, z: 0}
+    Pieces: []
+  - Pos: {x: 0, y: 0, z: 0}
+    Pieces:
+    - PieceType: 3
+  - Pos: {x: 0, y: 0, z: 1}
+    Pieces:
+    - PieceType: 2
+  - Pos: {x: -1, y: 0, z: 1}
+    Pieces: []
+  - Pos: {x: -1, y: 0, z: 2}
+    Pieces: []
+  - Pos: {x: 0, y: 0, z: 2}
+    Pieces: []
+  - Pos: {x: 1, y: 0, z: 2}
+    Pieces: []

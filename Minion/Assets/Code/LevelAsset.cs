@@ -4,27 +4,28 @@ using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "Level", menuName = "Assets/New Level", order = 1)]
 public class LevelAsset : ScriptableObject {
-	public List<TileData> tiles = new List<TileData>();
+	public List<TileData> Tiles = new List<TileData>();
 
 	
 }
 
 [Serializable]
 public class TileData {
-	public Vector3 pos;
-	public List<Piece> pieces = new List<Piece>();
+	public Vector3 Pos;
+	public List<PieceData> Pieces = new List<PieceData>();
 
 	public TileData(Vector3 pos) {
-		this.pos = pos;
+		this.Pos = pos;
 	}
 }
 
 [Serializable]
-public class Piece {
-	public PieceType pieceType;
-	
-	public Piece(PieceType pieceType) {
-		this.pieceType = pieceType;
+public class PieceData {
+	public PieceType PieceType;
+	public Direction Direction;
+
+	public PieceData(PieceType pieceType) {
+		this.PieceType = pieceType;
 	}
 }
 
@@ -35,3 +36,5 @@ public enum PieceType {
 	GoalPos,
 	Cube
 };
+
+public enum Direction { Up, Right, Down, Left}
