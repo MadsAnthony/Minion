@@ -14,14 +14,20 @@ public class LevelInspector : Editor {
 	Vector2 startMousePos;
 	Vector2 mousePos;
 	PieceType pieceType;
+	EditorMode editorMode;
 	public override void OnInspectorGUI()
 	{
 		bool reconstruct = false;
 		LevelAsset myTarget = (LevelAsset)target;
-		
-		string[] pieceOptions = Enum.GetNames (typeof(PieceType));
-		pieceType = (PieceType)EditorGUILayout.Popup ("Piece Type", (int)pieceType, pieceOptions);
-		
+
+		string[] editorModeOptions = {"Select", "Add"};
+		editorMode = (EditorMode)EditorGUILayout.Popup ("Mode", (int)editorMode, editorModeOptions);
+
+		if (editorMode == EditorMode.Add) {
+			string[] pieceOptions = Enum.GetNames (typeof(PieceType));
+			pieceType = (PieceType)EditorGUILayout.Popup ("Piece Type", (int)pieceType, pieceOptions);
+		}
+
 		if (cameraGameObject != null) {
 			EditorGUI.DrawPreviewTexture (new Rect (0+windowOffset.x, 0+windowOffset.y, windowSize.x, windowSize.y), editorRenderTexture);
 		}
@@ -31,36 +37,42 @@ public class LevelInspector : Editor {
 		tmpMousePos -= windowSize * 0.5f;
 		var mousePosInGrid = new Vector3(Mathf.RoundToInt(tmpMousePos.x / windowGridSize), 0, -Mathf.RoundToInt(tmpMousePos.y / windowGridSize));
 		if (Event.current.type == EventType.MouseDown) {
-			if (pieceType == PieceType.Tile) {
-				if (Event.current.button == 0) {
-					if (!myTarget.tiles.Exists(x => { return x.pos == mousePosInGrid; })) {
-						myTarget.tiles.Add(new TileData(mousePosInGrid));
-						reconstruct = true;
-					}
-				}
 
-				if (Event.current.button == 1) {
+			if (editorMode == EditorMode.Select) {
+				
+			} else if (editorMode == EditorMode.Add) {
+				if (pieceType == PieceType.Tile) {
+					if (Event.current.button == 0) {
+						if (!myTarget.tiles.Exists(x => { return x.pos == mousePosInGrid; })) {
+							myTarget.tiles.Add(new TileData(mousePosInGrid));
+							reconstruct = true;
+						}
+					}
+
+					if (Event.current.button == 1) {
+						var posibleTile = myTarget.tiles.Find(x => { return x.pos == mousePosInGrid; });
+						if (posibleTile != null) {
+							myTarget.tiles.Remove(posibleTile);
+							reconstruct = true;
+						}
+					}
+				} else {
 					var posibleTile = myTarget.tiles.Find(x => { return x.pos == mousePosInGrid; });
-					if (posibleTile != null) {
-						myTarget.tiles.Remove(posibleTile);
-						reconstruct = true;
+					if (Event.current.button == 0) {
+						if (posibleTile != null && posibleTile.pieces.Count == 0) {
+							posibleTile.pieces.Add(new Piece(pieceType));
+							reconstruct = true;
+						}
+					}
+					if (Event.current.button == 1) {
+						if (posibleTile != null && posibleTile.pieces.Count != 0){
+							posibleTile.pieces = new List<Piece>();
+							reconstruct = true;
+						}
 					}
 				}
-			} else {
-				var posibleTile = myTarget.tiles.Find(x => { return x.pos == mousePosInGrid; });
-				if (Event.current.button == 0) {
-					if (posibleTile != null && posibleTile.pieces.Count == 0) {
-						posibleTile.pieces.Add(new Piece(pieceType));
-						reconstruct = true;
-					}
-				}
-				if (Event.current.button == 1) {
-					if (posibleTile != null && posibleTile.pieces.Count != 0){
-						posibleTile.pieces = new List<Piece>();
-						reconstruct = true;
-					}
-				}
-			}
+			}	
+
 		}
 
 		if (Event.current.button == 2) {
@@ -112,6 +124,7 @@ public class LevelInspector : Editor {
 		cameraGameObject.transform.position = new Vector3 (0,4,-100);
 		cameraGameObject.transform.eulerAngles = new Vector3(90,0,0);
 		var camera = cameraGameObject.AddComponent<Camera> ();
+		camera.hideFlags = HideFlags.HideAndDontSave;
 		camera.orthographic = true;
 		camera.clearFlags = CameraClearFlags.Color;
 		camera.backgroundColor = windowBackgroundColor;
@@ -161,4 +174,9 @@ public class LevelInspector : Editor {
 		GameObject.DestroyImmediate (rootContainer);
 		GameObject.DestroyImmediate (cameraGameObject);
 	}
+
+	public enum EditorMode {
+		Select,
+		Add
+	};
 }

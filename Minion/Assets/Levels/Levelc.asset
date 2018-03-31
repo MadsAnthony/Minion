@@ -9,10 +9,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a28521016e12154ea6db0b8b6e6588f, type: 3}
-  m_Name: Level
+  m_Name: Level 1
   m_EditorClassIdentifier: 
   tiles:
   - pos: {x: 0, y: 0, z: 0}
+    pieces:
+    - pieceType: 3
+  - pos: {x: -1, y: 0, z: 0}
+    pieces: []
+  - pos: {x: -1, y: 0, z: 1}
+    pieces:
+    - pieceType: 3
+  - pos: {x: 0, y: 0, z: 1}
+    pieces: []
+  - pos: {x: 1, y: 0, z: 1}
     pieces:
     - pieceType: 3
   - pos: {x: 1, y: 0, z: 0}
@@ -21,33 +31,20 @@ MonoBehaviour:
     pieces: []
   - pos: {x: 0, y: 0, z: -1}
     pieces: []
-  - pos: {x: -1, y: 0, z: 1}
-    pieces: []
-  - pos: {x: 0, y: 0, z: 1}
-    pieces:
-    - pieceType: 2
-  - pos: {x: 1, y: 0, z: 1}
-    pieces: []
-  - pos: {x: -1, y: 0, z: 0}
-    pieces: []
   - pos: {x: -1, y: 0, z: -1}
     pieces: []
-  - pos: {x: 0, y: 0, z: -4}
-    pieces: []
+  - pos: {x: -1, y: 0, z: 2}
+    pieces:
+    - pieceType: 3
   - pos: {x: -2, y: 0, z: 2}
-    pieces: []
-  - pos: {x: -2, y: 0, z: 0}
     pieces: []
   - pos: {x: -2, y: 0, z: 1}
     pieces: []
   - pos: {x: -2, y: 0, z: -1}
     pieces: []
-  - pos: {x: -2, y: 0, z: -2}
-    pieces:
-    - pieceType: 1
-  - pos: {x: -1, y: 0, z: -2}
+  - pos: {x: -2, y: 0, z: 0}
     pieces: []
-  - pos: {x: 0, y: 0, z: -2}
+  - pos: {x: -1, y: 0, z: -2}
     pieces: []
   - pos: {x: 1, y: 0, z: -2}
     pieces: []
@@ -62,8 +59,12 @@ MonoBehaviour:
   - pos: {x: 2, y: 0, z: 2}
     pieces: []
   - pos: {x: 1, y: 0, z: 2}
-    pieces: []
+    pieces:
+    - pieceType: 2
   - pos: {x: 0, y: 0, z: 2}
     pieces: []
-  - pos: {x: -1, y: 0, z: 2}
+  - pos: {x: 0, y: 0, z: -2}
+    pieces:
+    - pieceType: 1
+  - pos: {x: -2, y: 0, z: -2}
     pieces: []
