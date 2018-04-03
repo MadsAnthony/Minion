@@ -78,7 +78,12 @@ public class HeroScript : MonoBehaviour {
 				if (isRotating) {
 					return;
 				}
+			}
 
+			RaycastHit hit2;
+			Ray ray2 = Camera.ScreenPointToRay(Input.mousePosition);
+			var layerMask = LayerMask.GetMask("TileLayer");
+			if (Physics.Raycast (ray2, out hit,50,layerMask)) {
 				targetPos = new Vector3 (hit.point.x, transform.position.y, hit.point.z);
 
 				var targetPosLocal = RootTileObject.transform.InverseTransformPoint (targetPos);
@@ -88,7 +93,7 @@ public class HeroScript : MonoBehaviour {
 				targetPos = RootTileObject.transform.TransformPoint (targetPosLocal);
 
 				if (moveCoroutine != null) StopCoroutine (moveCoroutine);
-				moveCoroutine = StartCoroutine (Move ());
+				moveCoroutine = StartCoroutine (Move (targetPosLocal));
 			}
 		}
 	}
@@ -126,13 +131,25 @@ public class HeroScript : MonoBehaviour {
 
 			if (fourRotations != lastRotation) {
 				if (rotateCoroutine != null) StopCoroutine (rotateCoroutine);
-				rotateCoroutine = StartCoroutine (RotateTo (transform, rotation * Mathf.Rad2Deg - 90, 0.2f));
+				rotateCoroutine = StartCoroutine (GameBoard.RotateTo (transform, rotation * Mathf.Rad2Deg - 90, 0.2f));
 			}
 
 			lastRotation = fourRotations;
 			yield return null;
 		}
 
+
+
+		isRotating = false;
+	}
+
+	private Coroutine takePictureCoroutine;
+	public void TakePicture() {
+		if (takePictureCoroutine != null) StopCoroutine (takePictureCoroutine);
+		takePictureCoroutine = StartCoroutine (TakePictureCr ());
+	}
+
+	public IEnumerator TakePictureCr() {
 		// Update Camera
 		HeroCamera0.enabled = false;
 		HeroCamera0.enabled = true;
@@ -150,31 +167,6 @@ public class HeroScript : MonoBehaviour {
 		var precision = CheckPictureIsGoal ();
 		if (precision>0.994f) {
 			Director.GameEventManager.Emit (GameEventType.LevelCompleted);
-		}
-
-		isRotating = false;
-	}
-
-	IEnumerator RotateTo(Transform transform, float toAngle, float time) {
-		float t = 0;
-		var startAngle = transform.localEulerAngles;
-		var angleA = (startAngle.y + 360) % 360;
-		var angleB = (toAngle + 360) % 360;
-
-		var dist = angleB-angleA;
-		if (Mathf.Abs (dist)>180) {
-			dist = -Mathf.Sign (dist) * (360 - Mathf.Abs (dist));
-		}
-
-		while (true) {
-			t += 1/time*Time.deltaTime;
-
-			transform.localEulerAngles = startAngle + Mathf.Clamp01(t) * new Vector3 (0, dist, 0);
-
-			if (t >= 1) {
-				break;
-			}
-			yield return null;
 		}
 	}
 
@@ -224,20 +216,20 @@ public class HeroScript : MonoBehaviour {
 	}
 
 	bool isMoving;
-	IEnumerator Move() {
+	IEnumerator Move(Vector3 newPos) {
 		isMoving = true;
 		Picture.SetActive (false);
 		MatchPicture.SetActive (false);
 
 		float t = 0;
-		var startPos = transform.position;
+		var startPos = transform.localPosition;
 		Animator.SetInteger ("stateIndex", (int)(HeroAnimationState.run));
 
-		var dirVector = targetPos-startPos;
-		transform.localEulerAngles = new Vector3 (0,Mathf.Atan2(dirVector.x,dirVector.z)*Mathf.Rad2Deg+45,0);
+		var dirVector = newPos-startPos;
+		transform.localEulerAngles = new Vector3 (0,Mathf.Atan2(dirVector.x,dirVector.z)*Mathf.Rad2Deg+90,0);
 		while (true) {
 			t += 4*(1f/dirVector.magnitude)*Time.deltaTime;
-			transform.position = Vector3.Lerp (startPos, targetPos, t);
+			transform.localPosition = Vector3.Lerp (startPos, newPos, t);
 			if (t>1) {
 				break;
 			}

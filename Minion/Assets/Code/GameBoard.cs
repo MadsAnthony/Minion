@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class GameBoard : MonoBehaviour {
 	public LevelDatabase LevelDatabase;
@@ -9,6 +10,7 @@ public class GameBoard : MonoBehaviour {
 	public GameObject TilePrefab;
 	public GameObject StandPrefab;
 	public GameObject GoalCameraPrefab;
+	public GameObject MainCameraPivot;
 	public RenderTexture GoalCameraTexture;
 	private const int GRID_SIZE = 5;
 	public TileInfo[,] grid = new TileInfo[GRID_SIZE, GRID_SIZE];
@@ -66,6 +68,45 @@ public class GameBoard : MonoBehaviour {
 
 		cameraGoal.transform.localPosition = new Vector3 (cameraGoal.transform.localPosition.x,0.6f,cameraGoal.transform.localPosition.z);
 		SetLayerInFront (cameraGoal.transform.localPosition, cameraGoal.transform.localEulerAngles.y);
+	}
+
+	private Coroutine rotateCoroutine;
+	private bool isDoneRotating = true;
+	public void RotateGameBoard(float angle) {
+		if (isDoneRotating) {
+			rotateCoroutine = StartCoroutine (GameBoard.RotateTo (MainCameraPivot.transform, MainCameraPivot.transform.localEulerAngles.y + angle, 0.2f, (bool isDone) => {this.isDoneRotating = isDone;}));
+		}
+	}
+
+	// Find another place for this static method. Shouldn't exist in GameBoard.
+	public static IEnumerator RotateTo(Transform transform, float toAngle, float time, Action<bool> callback = null) {
+		if (callback != null) {
+			callback (false);
+		}
+
+		float t = 0;
+		var startAngle = transform.localEulerAngles;
+		var angleA = (startAngle.y + 360) % 360;
+		var angleB = (toAngle + 360) % 360;
+
+		var dist = angleB-angleA;
+		if (Mathf.Abs (dist)>180) {
+			dist = -Mathf.Sign (dist) * (360 - Mathf.Abs (dist));
+		}
+
+		while (true) {
+			t += 1/time*Time.deltaTime;
+
+			transform.localEulerAngles = startAngle + Mathf.Clamp01(t) * new Vector3 (0, dist, 0);
+
+			if (t >= 1) {
+				break;
+			}
+			yield return null;
+		}
+		if (callback != null) {
+			callback (true);
+		}
 	}
 
 	public int GetAngleFromDirection(Direction dir) {
