@@ -70,12 +70,12 @@ public class HeroScript : MonoBehaviour {
 			if (Physics.Raycast(ray, out hit)) {
 				if (Input.GetMouseButtonDown(0 )&& !isMoving && hit.collider.gameObject.name == "Hero" && !isRotating) {
 					if (rotateCoroutine != null) StopCoroutine (rotateCoroutine);
-					rotateCoroutine = StartCoroutine (Rotate ());
+
+					rotateCoroutine = StartCoroutine (GameBoard.RotateTo (transform, Mathf.RoundToInt(transform.localEulerAngles.y/90)*90 + 90, 0.2f, (bool isDone) => {this.isRotating = !isDone;}));
 					return;
 				}
 
-				// If rotating stop everyting else.
-				if (isRotating) {
+				if (hit.collider.gameObject.name == "Hero") {
 					return;
 				}
 			}
@@ -84,6 +84,7 @@ public class HeroScript : MonoBehaviour {
 			Ray ray2 = Camera.ScreenPointToRay(Input.mousePosition);
 			var layerMask = LayerMask.GetMask("TileLayer");
 			if (Physics.Raycast (ray2, out hit,50,layerMask)) {
+				if (!isMoving) {
 				targetPos = new Vector3 (hit.point.x, transform.position.y, hit.point.z);
 
 				var targetPosLocal = RootTileObject.transform.InverseTransformPoint (targetPos);
@@ -92,8 +93,9 @@ public class HeroScript : MonoBehaviour {
 
 				targetPos = RootTileObject.transform.TransformPoint (targetPosLocal);
 
-				if (moveCoroutine != null) StopCoroutine (moveCoroutine);
-				moveCoroutine = StartCoroutine (Move (targetPosLocal));
+
+					moveCoroutine = StartCoroutine (Move (targetPosLocal));
+				}
 			}
 		}
 	}
@@ -110,6 +112,7 @@ public class HeroScript : MonoBehaviour {
 		Vector3 startHeroLocalPos = transform.localPosition;
 		Vector3 mouseLocalPositionOnGround = Vector3.zero;
 		Coroutine rotateCoroutine = null;
+
 		while (true) {
 			if (Input.GetMouseButtonUp (0)) {
 				break;
